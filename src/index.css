@@ -1,0 +1,16 @@
+@import "tailwindcss";
+
+/* Reset inherited Vite default styles */
+body {
+  margin: 0;
+  padding: 0;
+}
+
+#root {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  border: none;
+  min-height: 100vh;
+}
+

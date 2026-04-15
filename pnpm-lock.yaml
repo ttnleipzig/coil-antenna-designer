@@ -18,7 +18,7 @@ importers:
         specifier: ^4.5.1
         version: 4.5.1
       chartjs-plugin-zoom:
-        specifier: 2.2.0
+        specifier: ^2.2.0
         version: 2.2.0(chart.js@4.5.1)
       d3:
         specifier: ^7.9.0

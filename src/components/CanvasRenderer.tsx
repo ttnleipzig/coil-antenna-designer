@@ -37,11 +37,16 @@ const CanvasRenderer: React.FC = () => {
     const turns = Math.max(1, Math.min(calcs.turns, 80));
     const halfTurns = Math.round(turns * 2);
 
-    // Pixel radius of the coil (scale to fit canvas)
-    const radiusPx = Math.min(W * 0.28, 80);
+    // Scale physical mm dimensions into pixels so annotations and geometry match.
+    const diameterMm = Math.max(1, params.coilDiameter);
+    const lengthMm = Math.max(1, calcs.coilLength);
+    const diameterScale = (W * 0.56) / diameterMm; // radius*2 should fit comfortably
+    const lengthScale = (H * 0.75) / lengthMm;
+    const mmToPx = Math.max(0.1, Math.min(diameterScale, lengthScale));
 
-    // Total axial height in pixels
-    const totalHeightPx = Math.min(H * 0.75, halfTurns * 6);
+    // Pixel radius/height derived from physical dimensions
+    const radiusPx = Math.max(8, (diameterMm / 2) * mmToPx);
+    const totalHeightPx = Math.max(16, lengthMm * mmToPx);
     const stepPx = halfTurns > 1 ? totalHeightPx / halfTurns : totalHeightPx;
 
     const cx = W / 2;

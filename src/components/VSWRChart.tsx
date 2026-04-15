@@ -15,6 +15,8 @@ import { Line } from 'react-chartjs-2';
 import { useAntennaStore } from '../store/antennaStore';
 import { generateVSWR } from '../utils/calculations';
 
+type ChartWithZoom = ChartJS<'line'> & { resetZoom?: () => void };
+
 // Register Chart.js modules
 ChartJS.register(
   CategoryScale,
@@ -35,7 +37,7 @@ ChartJS.register(
  * VSWR below 2 is generally considered acceptable; that zone is shaded.
  */
 const VSWRChart: React.FC = () => {
-  const chartRef = useRef<ChartJS<'line'> | null>(null);
+  const chartRef = useRef<ChartWithZoom | null>(null);
   const params = useAntennaStore((s) => s.params);
   const calcs = useAntennaStore((s) => s.calcs);
   const darkMode = useAntennaStore((s) => s.darkMode);
@@ -173,9 +175,7 @@ const VSWRChart: React.FC = () => {
           </h2>
           <button
             type="button"
-            onClick={() =>
-              (chartRef.current as (ChartJS<'line'> & { resetZoom?: () => void }) | null)?.resetZoom?.()
-            }
+            onClick={() => chartRef.current?.resetZoom?.()}
             className="text-xs px-2 py-0.5 rounded border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors"
           >
             Reset Zoom

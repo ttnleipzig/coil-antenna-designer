@@ -37,11 +37,16 @@ const CanvasRenderer: React.FC = () => {
     const turns = Math.max(1, Math.min(calcs.turns, 80));
     const halfTurns = Math.round(turns * 2);
 
-    // Pixel radius of the coil (scale to fit canvas)
-    const radiusPx = Math.min(W * 0.28, 80);
+    // Scale physical mm dimensions into pixels so annotations and geometry match.
+    const diameterMm = Math.max(1, params.coilDiameter);
+    const lengthMm = Math.max(1, calcs.coilLength);
+    const diameterScale = (W * 0.56) / diameterMm; // radius*2 should fit comfortably
+    const lengthScale = (H * 0.75) / lengthMm;
+    const mmToPx = Math.max(0.1, Math.min(diameterScale, lengthScale));
 
-    // Total axial height in pixels
-    const totalHeightPx = Math.min(H * 0.75, halfTurns * 6);
+    // Pixel radius/height derived from physical dimensions
+    const radiusPx = Math.max(8, (diameterMm / 2) * mmToPx);
+    const totalHeightPx = Math.max(16, lengthMm * mmToPx);
     const stepPx = halfTurns > 1 ? totalHeightPx / halfTurns : totalHeightPx;
 
     const cx = W / 2;
@@ -101,7 +106,18 @@ const CanvasRenderer: React.FC = () => {
     }
 
     // ── Dimension annotation ─────────────────────────────────────
-    drawAnnotations(ctx, W, H, cx, startY, totalHeightPx, radiusPx, calcs, darkMode);
+    drawAnnotations(
+      ctx,
+      W,
+      H,
+      cx,
+      startY,
+      totalHeightPx,
+      radiusPx,
+      params.coilDiameter,
+      calcs.coilLength,
+      darkMode,
+    );
   }, [params, calcs, darkMode]);
 
   // Re-draw whenever dependencies change
@@ -189,7 +205,8 @@ function drawAnnotations(
   startY: number,
   totalH: number,
   radiusPx: number,
-  calcs: { coilLength: number; coilDiameter?: number },
+  coilDiameterMm: number,
+  coilLengthMm: number,
   dark: boolean,
 ) {
   ctx.font = '9px monospace';
@@ -202,13 +219,13 @@ function drawAnnotations(
   const arrowY = startY - 16;
   arrow(ctx, cx - radiusPx, arrowY, cx + radiusPx, arrowY);
   ctx.textAlign = 'center';
-  ctx.fillText(`⌀ ${(radiusPx * 2).toFixed(0)} px`, cx, arrowY - 4);
+  ctx.fillText(`⌀ ${coilDiameterMm.toFixed(1)} mm`, cx, arrowY - 4);
 
   // Length arrow on the right
   const arrowX = cx + radiusPx + 14;
   arrow(ctx, arrowX, startY, arrowX, startY + totalH);
   ctx.textAlign = 'left';
-  ctx.fillText(`${calcs.coilLength.toFixed(0)} mm`, arrowX + 4, startY + totalH / 2);
+  ctx.fillText(`${coilLengthMm.toFixed(1)} mm`, arrowX + 4, startY + totalH / 2);
 }
 
 function arrow(

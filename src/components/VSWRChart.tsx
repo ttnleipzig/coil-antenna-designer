@@ -102,8 +102,8 @@ const VSWRChart: React.FC = () => {
     plugins: {
       zoom: {
         limits: {
-          x: { min: 'original', max: 'original' as const },
-          y: { min: 'original', max: 'original' as const },
+          x: { min: 'original' as const, max: 'original' as const },
+          y: { min: 'original' as const, max: 'original' as const },
         },
         zoom: {
           wheel: { enabled: true },

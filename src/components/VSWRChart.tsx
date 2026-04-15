@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef } from 'react';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -10,6 +10,7 @@ import {
   Legend,
   Filler,
 } from 'chart.js';
+import zoomPlugin from 'chartjs-plugin-zoom';
 import { Line } from 'react-chartjs-2';
 import { useAntennaStore } from '../store/antennaStore';
 import { generateVSWR } from '../utils/calculations';
@@ -24,6 +25,7 @@ ChartJS.register(
   Tooltip,
   Legend,
   Filler,
+  zoomPlugin,
 );
 
 /**
@@ -33,6 +35,7 @@ ChartJS.register(
  * VSWR below 2 is generally considered acceptable; that zone is shaded.
  */
 const VSWRChart: React.FC = () => {
+  const chartRef = useRef<ChartJS<'line'> | null>(null);
   const params = useAntennaStore((s) => s.params);
   const calcs = useAntennaStore((s) => s.calcs);
   const darkMode = useAntennaStore((s) => s.darkMode);
@@ -97,6 +100,20 @@ const VSWRChart: React.FC = () => {
     maintainAspectRatio: false,
     animation: { duration: 300 } as const,
     plugins: {
+      zoom: {
+        limits: {
+          x: { min: 'original', max: 'original' as const },
+          y: { min: 'original', max: 'original' as const },
+        },
+        zoom: {
+          wheel: { enabled: true },
+          drag: {
+            enabled: true,
+            backgroundColor: darkMode ? 'rgba(148,163,184,0.2)' : 'rgba(99,102,241,0.15)',
+          },
+          mode: 'x' as const,
+        },
+      },
       legend: {
         labels: { color: textColour, boxWidth: 14, font: { size: 11 } },
       },
@@ -150,12 +167,23 @@ const VSWRChart: React.FC = () => {
   return (
     <div className="flex flex-col h-full">
       <div className="px-3 py-1 border-b border-gray-200 dark:border-gray-700">
-        <h2 className="text-sm font-semibold text-gray-600 dark:text-gray-300">
-          VSWR Chart
-        </h2>
+        <div className="flex items-center justify-between gap-2">
+          <h2 className="text-sm font-semibold text-gray-600 dark:text-gray-300">
+            VSWR Chart
+          </h2>
+          <button
+            type="button"
+            onClick={() =>
+              (chartRef.current as (ChartJS<'line'> & { resetZoom?: () => void }) | null)?.resetZoom?.()
+            }
+            className="text-xs px-2 py-0.5 rounded border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors"
+          >
+            Reset Zoom
+          </button>
+        </div>
       </div>
       <div className="flex-1 min-h-0 p-2">
-        <Line data={data} options={options} />
+        <Line ref={chartRef} data={data} options={options} />
       </div>
     </div>
   );

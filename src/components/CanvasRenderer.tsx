@@ -101,7 +101,18 @@ const CanvasRenderer: React.FC = () => {
     }
 
     // ── Dimension annotation ─────────────────────────────────────
-    drawAnnotations(ctx, W, H, cx, startY, totalHeightPx, radiusPx, calcs, darkMode);
+    drawAnnotations(
+      ctx,
+      W,
+      H,
+      cx,
+      startY,
+      totalHeightPx,
+      radiusPx,
+      params.coilDiameter,
+      calcs.coilLength,
+      darkMode,
+    );
   }, [params, calcs, darkMode]);
 
   // Re-draw whenever dependencies change
@@ -189,7 +200,8 @@ function drawAnnotations(
   startY: number,
   totalH: number,
   radiusPx: number,
-  calcs: { coilLength: number; coilDiameter?: number },
+  coilDiameterMm: number,
+  coilLengthMm: number,
   dark: boolean,
 ) {
   ctx.font = '9px monospace';
@@ -202,13 +214,13 @@ function drawAnnotations(
   const arrowY = startY - 16;
   arrow(ctx, cx - radiusPx, arrowY, cx + radiusPx, arrowY);
   ctx.textAlign = 'center';
-  ctx.fillText(`⌀ ${(radiusPx * 2).toFixed(0)} px`, cx, arrowY - 4);
+  ctx.fillText(`⌀ ${coilDiameterMm.toFixed(1)} mm`, cx, arrowY - 4);
 
   // Length arrow on the right
   const arrowX = cx + radiusPx + 14;
   arrow(ctx, arrowX, startY, arrowX, startY + totalH);
   ctx.textAlign = 'left';
-  ctx.fillText(`${calcs.coilLength.toFixed(0)} mm`, arrowX + 4, startY + totalH / 2);
+  ctx.fillText(`${coilLengthMm.toFixed(1)} mm`, arrowX + 4, startY + totalH / 2);
 }
 
 function arrow(

@@ -34,8 +34,9 @@ export function calcTurns(wireLengthM: number, coilDiameterMm: number): number {
 export function calcPitch(coilDiameterMm: number, frequencyMHz: number): number {
   // Pitch is roughly proportional to wavelength, scaled to the coil
   const wavelengthMm = (C / (frequencyMHz * 1e6)) * 1000;
-  // Typical helical antenna: pitch ≈ 0.2–0.5 × circumference
-  return Math.min(wavelengthMm * 0.05, coilDiameterMm * 0.8);
+  // Clamp to a tighter default (3 % λ, max 0.45 × diameter) so the
+  // visualized turns stay close and don't appear unnaturally spread apart.
+  return Math.min(wavelengthMm * 0.03, coilDiameterMm * 0.45);
 }
 
 /**
